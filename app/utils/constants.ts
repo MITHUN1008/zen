@@ -37,13 +37,16 @@ export let MODEL_LIST: ModelInfo[] = [...staticModels];
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
     const response = await fetch(`http://localhost:11434/api/tags`);
-    const data = await response.json();
+    const data = await response.json() as { models?: any[] };
 
-    return data.models.map((model: any) => ({
-      name: model.name,
-      label: `${model.name} (${model.details.parameter_size})`,
-      provider: 'Ollama',
-    }));
+    if (data && data.models && Array.isArray(data.models)) {
+      return data.models.map((model: any) => ({
+        name: model.name,
+        label: `${model.name} (${model.details.parameter_size})`,
+        provider: 'Ollama',
+      }));
+    }
+    return [];
   } catch (e) {
     return [];
   }
